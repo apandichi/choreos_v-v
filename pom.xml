@@ -231,6 +231,7 @@
 			    <version>2.17</version>
 			    <configuration>
 			        <parallel>suites</parallel>
+			       <threadCount>1</threadCount>
 			    </configuration>
 			  </plugin>
 
