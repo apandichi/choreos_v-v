@@ -8,6 +8,6 @@ import eu.choreos.vv.servicesimulator.BasicMockFeaturesTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ BasicMockFeaturesTest.class, TimeoutSupportTest.class })
-public class TestSuiteTest {
+public class RehearsalTestSuite {
 
 }

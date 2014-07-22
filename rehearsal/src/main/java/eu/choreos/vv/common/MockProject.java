@@ -120,8 +120,9 @@ public class MockProject {
 			iface.addEndpoint(service.getLocalEndpoint());
 
 			try {
-				if (HttpUtils.UriAreUsed("http://" + hostName + ":" + port))
-					throw new MockDeploymentException("Address already in use");
+				String url = "http://" + hostName + ":" + port;
+				if (HttpUtils.UriAreUsed(url))
+					throw new MockDeploymentException("Address already in use: " + url);
 
 				service.start();
 
