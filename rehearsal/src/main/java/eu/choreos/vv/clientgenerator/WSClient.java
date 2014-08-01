@@ -18,6 +18,8 @@ import com.eviware.soapui.impl.wsdl.mock.WsdlMockResponse;
 import com.eviware.soapui.impl.wsdl.mock.WsdlMockService;
 import com.eviware.soapui.model.iface.Request.SubmitException;
 import com.eviware.soapui.model.iface.Response;
+import com.eviware.soapui.model.mock.MockOperation;
+import com.eviware.soapui.model.mock.MockResponse;
 import com.eviware.soapui.support.SoapUIException;
 
 import eu.choreos.vv.common.HttpUtils;
@@ -245,10 +247,9 @@ public class WSClient {
 		iface = WsdlInterfaceFactory.importWsdl(project, wsdl, true)[0];
 
 		WsdlMockService service = project.addNewMockService("name");
-		WsdlMockOperation mockOperation = service.addNewMockOperation(iface
+		MockOperation mockOperation = service.addNewMockOperation(iface
 				.getOperationByName(operationName));
-		WsdlMockResponse response = mockOperation.addNewMockResponse(
-				"Response 1", true);
+		MockResponse response = mockOperation.addNewMockResponse("Response 1");
 
 		String responseContent = response.getResponseContent();
 

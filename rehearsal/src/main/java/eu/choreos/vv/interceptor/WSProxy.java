@@ -9,6 +9,8 @@ import org.apache.xmlbeans.XmlException;
 import com.eviware.soapui.impl.wsdl.WsdlOperation;
 import com.eviware.soapui.impl.wsdl.mock.WsdlMockOperation;
 import com.eviware.soapui.impl.wsdl.mock.WsdlMockResponse;
+import com.eviware.soapui.model.mock.MockOperation;
+import com.eviware.soapui.model.mock.MockResponse;
 
 import eu.choreos.vv.common.MockProject;
 import eu.choreos.vv.exceptions.WSDLException;
@@ -47,13 +49,13 @@ public class WSProxy extends MockProject {
 	 */
 	private void addOperationsToProxy(){
 		for (int i=0; i < iface.getOperationCount(); i++){
-			WsdlMockOperation mockOperation = service.addNewMockOperation(iface.getOperationAt(i));
-			mockOperation.setDispatchStyle("SCRIPT");
+			MockOperation mockOperation = service.addNewMockOperation(iface.getOperationAt(i));
+			//mockOperation.setDispatchStyle("SCRIPT");
 			
 			String responseContent = "${message}";
 			String script = getScript(mockOperation.getName());
 			
-			WsdlMockResponse response = mockOperation.addNewMockResponse( "Response 1", true );
+			MockResponse response = mockOperation.addNewMockResponse( "Response 1");
 			response.setScript(script);
 			response.setResponseContent(responseContent);
 		}
