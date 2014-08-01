@@ -12,9 +12,9 @@ import eu.choreos.vv.exceptions.ParserException;
  */
 public class MockOperation {
 	
-	private WsdlMockOperation soapUIMockOperation;
+	private com.eviware.soapui.model.mock.MockOperation soapUIMockOperation;
 	private String defaultResponse;
-	private WsdlMockResponse soapUIResponse;
+	private com.eviware.soapui.model.mock.MockResponse soapUIResponse;
     private ScriptBuilder builder;
 	
     /**
@@ -23,9 +23,9 @@ public class MockOperation {
      * @param defaultRequest envelope
      * @param soapUIMockOperation object which is used for mocking the operation
      */
-	public MockOperation(String defaultRequest, WsdlMockOperation soapUIMockOperation, String wsdl, boolean interceptor) {
+	public MockOperation(String defaultRequest, com.eviware.soapui.model.mock.MockOperation soapUIMockOperation, String wsdl, boolean interceptor) {
 		this.soapUIMockOperation = soapUIMockOperation;
-		 soapUIResponse = soapUIMockOperation.addNewMockResponse("response 1", true);
+		 soapUIResponse = soapUIMockOperation.addNewMockResponse("response 1");
 		defaultResponse =  soapUIResponse.getResponseContent();
 		builder = new ScriptBuilder(wsdl, interceptor);
 		builder.setDefaultRequest(defaultRequest);
@@ -47,7 +47,7 @@ public class MockOperation {
 	 * 
 	 * @return SoapUI MockOperation 
 	 */
-	public WsdlMockOperation getSoapUIMockOperation(){
+	public com.eviware.soapui.model.mock.MockOperation getSoapUIMockOperation(){
 		return soapUIMockOperation;
 	}
 	

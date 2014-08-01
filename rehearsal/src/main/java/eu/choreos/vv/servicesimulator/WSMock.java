@@ -78,9 +78,9 @@ public class WSMock extends MockProject {
 	 */
 	private void createMockOperations(boolean isInterceptor) {
 		for (int i = 0; i < iface.getOperationCount(); i++) {
-			WsdlMockOperation soapUIMockOperation = service
+			com.eviware.soapui.model.mock.MockOperation soapUIMockOperation = service
 					.addNewMockOperation(iface.getOperationAt(i));
-			soapUIMockOperation.setDispatchStyle("SCRIPT");
+			//soapUIMockOperation.setDispatchStyle("SCRIPT");
 			String defaultRequest = iface.getOperationAt(i).getRequestAt(0)
 					.getRequestContent();
 			MockOperation rehearsalMockOperation = new MockOperation(
