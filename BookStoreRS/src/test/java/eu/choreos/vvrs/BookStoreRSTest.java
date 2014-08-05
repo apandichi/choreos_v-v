@@ -1,11 +1,5 @@
 package eu.choreos.vvrs;
 
-import static com.jayway.restassured.RestAssured.delete;
-import static com.jayway.restassured.RestAssured.get;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import groovyx.net.http.ContentType;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -13,6 +7,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
+
+import static com.jayway.restassured.RestAssured.delete;
+import static com.jayway.restassured.RestAssured.get;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class BookStoreRSTest {
 	
