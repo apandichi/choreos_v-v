@@ -1,49 +1,99 @@
 package eu.choreos.vv.clientgenerator;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import com.jayway.restassured.RestAssured;
+import org.apache.xmlbeans.XmlException;
 
-/**
- * RSClient is just a wrapper for the RESTAssured (v1.2.1) library
- * for REST communication. 
- * 
- * @author Leonardo Leite, Lucas Piva
- *
- */
+import com.eviware.soapui.impl.rest.RestMethod;
+import com.eviware.soapui.impl.rest.RestRequest;
+import com.eviware.soapui.impl.rest.RestRequestInterface.HttpMethod;
+import com.eviware.soapui.impl.rest.RestResource;
+import com.eviware.soapui.impl.rest.RestService;
+import com.eviware.soapui.impl.rest.RestServiceFactory;
+import com.eviware.soapui.impl.rest.support.RestParamProperty;
+import com.eviware.soapui.impl.rest.support.RestParamsPropertyHolder.ParameterStyle;
+import com.eviware.soapui.impl.wsdl.WsdlProject;
+import com.eviware.soapui.impl.wsdl.WsdlSubmit;
+import com.eviware.soapui.impl.wsdl.WsdlSubmitContext;
+import com.eviware.soapui.model.iface.Request.SubmitException;
+import com.eviware.soapui.model.iface.Response;
+import com.eviware.soapui.support.SoapUIException;
+
 public class RSClient {
 
 	private String basePath;
 	private String baseUri;
 	private int port;
 	
-	/**
-	 * Creates a RSClient object.
-	 * 
-	 * @param baseUri The URI where the service is hosted.
-	 * @param port The port where the service can be called.
-	 */
 	public RSClient(String baseUri, String basePath, int port){
 		this.baseUri = baseUri;
 		this.basePath = basePath;
 		this.port = port;
 	}
+	
+	private String makeRequest(HttpMethod method, String path, Map<String, String> parameters) {
+		RestRequest request = request(method, path, parameters);
+		return responseFrom(request);
+	}
 
-	/**
-	 * We set the request URL every time we make a request,
-	 * to avoid service calls to wrong url's. For example, 
-	 * if the client creates two RSClient's pointing to two
-	 * different services, the RESTAssured library will always
-	 * point to the last called service, because URI and port
-	 * are static attributes.
-	 */
-	private void setRequestUrl(){
-		RestAssured.baseURI = baseUri;
-		RestAssured.basePath = basePath;
-		RestAssured.port = port;
+	private String responseFrom(RestRequest request) {
+		try {
+			boolean async = false;
+			WsdlSubmit<RestRequest> submit = request.submit(new WsdlSubmitContext(request), async);
+			Response response = submit.getResponse();
+			String asString = response.getContentAsString();
+			return asString == null ? "" : asString;
+		} catch (SubmitException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
+	private RestRequest request(HttpMethod method, String path, Map<String, String> parameters) {
+		try {
+			RestRequest request = request();
+			request.setEndpoint(endpoint());
+			request.setMethod(method);
+			request.setPath(path);
+			
+			if (method == HttpMethod.POST) {
+				request.setPostQueryString(true);
+			}
+			
+			//addParameters(request, parameters, ParameterStyle.HEADER);
+			addParameters(request, parameters, ParameterStyle.QUERY);
+				
+			return request;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void addParameters(RestRequest request, Map<String, String> parameters, ParameterStyle style) {
+		for (Entry<String, String> entry : parameters.entrySet()) {
+			RestParamProperty property = request.getParams().addProperty(entry.getKey());
+			property.setStyle(style);
+			property.setValue(entry.getValue());
+		}
+	}
+
+	private RestRequest request() throws XmlException, IOException, SoapUIException {
+		WsdlProject wsdlProject = new WsdlProject();
+		RestService service = new RestServiceFactory().createNew(wsdlProject, "restService");
+		RestResource restResource = service.addNewResource("myResource", "myPath");
+		RestMethod restMethod = restResource.addNewMethod("myMethod");
+		RestRequest request = restMethod.addNewRequest("myRequest");
+		request.setMediaType("*/*");
+		request.setAccept("*/*");
+		return request;
+	}
+
+	private String endpoint() {
+		return String.format("%s:%d%s", baseUri, port, basePath);
+	} 
+
 	/**
 	 * 
 	 * @param path The path after the URI where the service is hosted.
@@ -51,15 +101,11 @@ public class RSClient {
 	 * @return The service response as a string.
 	 */
 	public String get(String path, Map<String, String> parameters) {
-		
-		setRequestUrl();
-		
-		return RestAssured.with().parameters(parameters).get(path).asString();
-
+		return makeRequest(HttpMethod.GET, path, parameters);
 	}
 	
 	public String get(String path){
-		return get(path, new HashMap<String, String>());
+		return makeRequest(HttpMethod.GET, path, new HashMap<String, String>());
 	}
 
 	/**
@@ -69,15 +115,11 @@ public class RSClient {
 	 * @return The service response as a string.
 	 */
 	public String post(String path, Map<String, String> parameters) {
-
-		setRequestUrl();
-		
-		return RestAssured.with().parameters(parameters).post(path).asString();
-
+		return makeRequest(HttpMethod.POST, path, parameters);
 	}
 	
 	public String post(String path){
-		return post(path, new HashMap<String, String>());
+		return makeRequest(HttpMethod.POST, path, new HashMap<String, String>());
 	}
 
 	/**
@@ -87,15 +129,11 @@ public class RSClient {
 	 * @return The service response as a string.
 	 */
 	public String put(String path, Map<String, String> parameters) {
-
-		setRequestUrl();
-		
-		return RestAssured.with().parameters(parameters).put(path).asString();
-
+		return makeRequest(HttpMethod.PUT, path, parameters);
 	}
 	
 	public String put(String path){
-		return put(path, new HashMap<String, String>());
+		return makeRequest(HttpMethod.PUT, path, new HashMap<String, String>());
 	}
 
 	/**
@@ -105,15 +143,11 @@ public class RSClient {
 	 * @return The service response as a string.
 	 */
 	public String delete(String path, Map<String, String> parameters) {
-		
-		setRequestUrl();
-		
-		return RestAssured.with().parameters(parameters).delete(path).asString();
-
+		return makeRequest(HttpMethod.DELETE, path, parameters);
 	}
 	
 	public String delete(String path){
-		return delete(path, new HashMap<String, String>());
+		return makeRequest(HttpMethod.DELETE, path, new HashMap<String, String>());
 	}
 
 }
